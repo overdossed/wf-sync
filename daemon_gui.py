@@ -327,6 +327,14 @@ def start_tray(api_key):
         else:
             messagebox.showwarning("Warframe Sync", "No se pudo sincronizar.")
 
+    def on_logout(icon, item):
+        if messagebox.askyesno("Cerrar sesión", "¿Cerrar sesión? Se borrará la API key guardada."):
+            if os.path.exists(API_KEY_FILE):
+                os.remove(API_KEY_FILE)
+            icon.stop()
+            win = LoginWindow(on_success=start_tray)
+            win.run()
+
     def on_quit(icon, item):
         icon.stop()
 
@@ -340,6 +348,7 @@ def start_tray(api_key):
             pystray.MenuItem("Sincronizar ahora", on_sync),
             pystray.MenuItem("Abrir web app", on_open),
             pystray.Menu.SEPARATOR,
+            pystray.MenuItem("Cerrar sesión", on_logout),
             pystray.MenuItem("Cerrar", on_quit),
         ),
     )
