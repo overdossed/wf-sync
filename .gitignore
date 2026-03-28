@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.pyc
+wf_sync.db
+dist/
+build/
+*.spec.bak

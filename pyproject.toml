@@ -1,0 +1,15 @@
+[project]
+name = "wf-auth-test"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "curl-cffi>=0.14.0",
+    "fastapi>=0.135.2",
+    "httpx>=0.28.1",
+    "passlib>=1.7.4",
+    "pillow>=12.1.1",
+    "pyinstaller>=6.19.0",
+    "pystray>=0.19.5",
+    "requests>=2.33.0",
+    "uvicorn[standard]>=0.42.0",
+]

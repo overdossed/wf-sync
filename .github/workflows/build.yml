@@ -1,0 +1,93 @@
+name: Build WFSync
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install pyinstaller requests pillow pystray psutil
+
+      - name: Build exe
+        run: |
+          pyinstaller daemon_windows.spec
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: WFSync-Windows
+          path: dist/WFSync.exe
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-tk libglib2.0-dev libayatana-appindicator3-dev
+
+      - name: Install Python dependencies
+        run: |
+          pip install pyinstaller requests pillow pystray
+
+      - name: Build binary
+        run: |
+          pyinstaller daemon_linux.spec
+
+      - name: Rename binary
+        run: |
+          mv dist/WFSync dist/WFSync-Linux
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: WFSync-Linux
+          path: dist/WFSync-Linux
+
+  release:
+    needs: [build-windows, build-linux]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: WFSync-Windows
+          path: dist/
+
+      - name: Download Linux artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: WFSync-Linux
+          path: dist/
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: WFSync Latest
+          files: |
+            dist/WFSync.exe
+            dist/WFSync-Linux
+          generate_release_notes: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
